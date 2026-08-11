@@ -83,7 +83,11 @@ class Bullet {
   }
 }
 
+<<<<<<< HEAD
 // ── Power-up (velocidad, escudo, triple shot) ───────────────────────────────────
+=======
+// ── Power-up (impulso de velocidad y triple shot) ───────────────────────────────
+>>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
 class PowerUp {
   constructor(x, y, kind = 'boost') {
     this.x  = x;
@@ -121,6 +125,7 @@ class PowerUp {
       ctx.lineTo( 1,  1);
       ctx.closePath();
       ctx.stroke();
+<<<<<<< HEAD
     } else if (this.kind === 'shield') {
       ctx.strokeStyle = '#7cf';
       ctx.beginPath();
@@ -132,6 +137,8 @@ class PowerUp {
       ctx.moveTo(0, -3);
       ctx.lineTo(0, 3);
       ctx.stroke();
+=======
+>>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
     } else if (this.kind === 'triple') {
       ctx.fillStyle = '#f7a';
       ctx.beginPath();
@@ -269,6 +276,7 @@ class Ship {
     this.thrusting      = false;
     this.invincible    = 3;
     this.shootCooldown = 0;
+<<<<<<< HEAD
     this.boostTimer      = 0;
     this.shieldTimer     = 0;
     this.tripleShotTimer = 0;
@@ -276,14 +284,27 @@ class Ship {
     this.burstTimer      = 0;
     this.burstAngle      = 0;
     this.dead            = false;
+=======
+    this.boostTimer     = 0;
+    this.tripleShotTimer = 0;
+    this.burstShots    = 0;
+    this.burstTimer    = 0;
+    this.burstAngle    = 0;
+    this.dead          = false;
+>>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
   }
 
   update(dt) {
     if (this.dead) return;
     if (this.invincible      > 0) this.invincible      -= dt;
+<<<<<<< HEAD
     if (this.shootCooldown   > 0) this.shootCooldown   -= dt;
     if (this.boostTimer      > 0) this.boostTimer      -= dt;
     if (this.shieldTimer     > 0) this.shieldTimer     -= dt;
+=======
+    if (this.shootCooldown  > 0) this.shootCooldown  -= dt;
+    if (this.boostTimer     > 0) this.boostTimer     -= dt;
+>>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
     if (this.tripleShotTimer > 0) this.tripleShotTimer -= dt;
 
     const ROT   = 3.5;   // rad/s
@@ -571,8 +592,12 @@ function update(dt) {
         explode(a.x, a.y, a.size * 5);
         newAsteroids.push(...a.split());
         if (Math.random() < 0.5) {
+<<<<<<< HEAD
           const r = Math.random();
           const kind = r < 1/3 ? 'boost' : r < 2/3 ? 'shield' : 'triple';
+=======
+          const kind = Math.random() < 0.5 ? 'boost' : 'triple';
+>>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
           powerups.push(new PowerUp(a.x, a.y, kind));
         }
       }
@@ -600,6 +625,11 @@ function update(dt) {
   for (const p of powerups) {
     if (dist(ship, p) < ship.radius + p.radius) {
       p.dead = true;
+<<<<<<< HEAD
+=======
+      if (p.kind === 'boost') ship.boostTimer = 5;
+      else ship.tripleShotTimer = 5;
+>>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
       explode(p.x, p.y, 6);
       if (p.kind === 'shield') {
         ship.shieldTimer = 8;
@@ -668,10 +698,15 @@ function drawHUD() {
   ctx.fillText(`SCORE  ${score}`, 14, 26);
   if (ship && ship.boostTimer > 0)
     ctx.fillText(`IMPULSO ${ship.boostTimer.toFixed(1)}s`, 14, 46);
+<<<<<<< HEAD
   if (ship && ship.shieldTimer > 0)
     ctx.fillText(`ESCUDO  ${ship.shieldTimer.toFixed(1)}s`, 14, 66);
   if (ship && ship.tripleShotTimer > 0)
     ctx.fillText(`TRIPLE  ${ship.tripleShotTimer.toFixed(1)}s`, 14, 86);
+=======
+  if (ship && ship.tripleShotTimer > 0)
+    ctx.fillText(`TRIPLE  ${ship.tripleShotTimer.toFixed(1)}s`, 14, 66);
+>>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
 
   ctx.textAlign = 'center';
   ctx.fillText(`NIVEL ${level}`, W / 2, 26);
