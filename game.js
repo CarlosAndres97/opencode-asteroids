@@ -84,6 +84,46 @@ class Bullet {
 }
 
 // ── Power-up (impulso de velocidad) ───────────────────────────────────────────
+class Shield {
+  constructor(x, y) {
+    this.x  = x;
+    this.y  = y;
+    this.vx = rand(-30, 30);
+    this.vy = rand(-30, 30);
+    this.ttl    = 10;
+    this.radius = 10;
+    this.dead   = false;
+  }
+
+  update(dt) {
+    this.x = wrap(this.x + this.vx * dt, W);
+    this.y = wrap(this.y + this.vy * dt, H);
+    this.ttl -= dt;
+    if (this.ttl <= 0) this.dead = true;
+  }
+
+  draw() {
+    if (this.ttl < 2 && Math.floor(this.ttl * 8) % 2 === 0) return;
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.strokeStyle = '#7cf';
+    ctx.lineWidth   = 1.5;
+    ctx.lineJoin    = 'round';
+    // Aro circular
+    ctx.beginPath();
+    ctx.arc(0, 0, 6, 0, Math.PI * 2);
+    ctx.stroke();
+    // Cruz interior
+    ctx.beginPath();
+    ctx.moveTo(-3, 0);
+    ctx.lineTo(3, 0);
+    ctx.moveTo(0, -3);
+    ctx.lineTo(0, 3);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
 class PowerUp {
   constructor(x, y) {
     this.x  = x;
@@ -249,6 +289,7 @@ class Ship {
     this.invincible    = 3;
     this.shootCooldown = 0;
     this.boostTimer    = 0;
+    this.shieldTimer   = 0;
     this.dead          = false;
   }
 
@@ -257,6 +298,7 @@ class Ship {
     if (this.invincible    > 0) this.invincible    -= dt;
     if (this.shootCooldown > 0) this.shootCooldown -= dt;
     if (this.boostTimer    > 0) this.boostTimer    -= dt;
+    if (this.shieldTimer   > 0) this.shieldTimer   -= dt;
 
     const ROT   = 3.5;   // rad/s
     const THRUST = 260;  // px/s²
@@ -291,6 +333,24 @@ class Ship {
     if (this.dead) return;
     // Parpadeo durante invencibilidad de reaparición
     if (this.invincible > 0 && Math.floor(this.invincible * 8) % 2 === 0) return;
+
+    // Burbuja del escudo
+    if (this.shieldTimer > 0) {
+      const blink = this.shieldTimer < 2 && Math.floor(this.shieldTimer * 8) % 2 === 0;
+      if (!blink) {
+        const pulse = 1.5 + Math.sin(performance.now() / 200) * 1.5;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.fillStyle = 'rgba(125, 200, 255, 0.15)';
+        ctx.strokeStyle = 'rgba(125, 200, 255, 0.7)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius + pulse, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
 
     const skin = SKINS[currentSkin];
     ctx.save();
@@ -499,7 +559,9 @@ function update(dt) {
         score += POINTS[a.size];
         explode(a.x, a.y, a.size * 5);
         newAsteroids.push(...a.split());
-        if (Math.random() < 0.25) powerups.push(new PowerUp(a.x, a.y));
+        const r = Math.random();
+        if (r < 0.125)      powerups.push(new PowerUp(a.x, a.y));
+        else if (r < 0.25)  powerups.push(new Shield(a.x, a.y));
       }
     }
   }
@@ -523,23 +585,41 @@ function update(dt) {
 
   // Nave vs power-up
   for (const p of powerups) {
-    if (dist(ship, p) < ship.radius + p.radius && ship.boostTimer <= 0) {
+    if (dist(ship, p) < ship.radius + p.radius) {
       p.dead = true;
-      ship.boostTimer = 5;
       explode(p.x, p.y, 6);
+      if (p instanceof Shield) {
+        ship.shieldTimer = 8;
+      } else if (ship.boostTimer <= 0) {
+        ship.boostTimer = 5;
+      }
       break;
     }
   }
   powerups = powerups.filter(p => !p.dead);
 
   // Nave vs asteroide
-  if (ship.invincible <= 0) {
+  if (ship.invincible <= 0 && ship.shieldTimer <= 0) {
     for (const a of asteroids) {
       if (dist(ship, a) < ship.radius + a.radius * 0.82) {
         killShip();
         break;
       }
     }
+  }
+
+  // Escudo destruye asteroides al contacto
+  if (ship.shieldTimer > 0) {
+    const newAsteroids = [];
+    for (const a of asteroids) {
+      if (!a.dead && dist(ship, a) < ship.radius + a.radius + 6) {
+        a.dead = true;
+        score += POINTS[a.size];
+        explode(a.x, a.y, a.size * 5);
+        newAsteroids.push(...a.split());
+      }
+    }
+    asteroids = asteroids.filter(a => !a.dead).concat(newAsteroids);
   }
 
   // Nivel completado
@@ -573,6 +653,8 @@ function drawHUD() {
   ctx.fillText(`SCORE  ${score}`, 14, 26);
   if (ship && ship.boostTimer > 0)
     ctx.fillText(`IMPULSO ${ship.boostTimer.toFixed(1)}s`, 14, 46);
+  if (ship && ship.shieldTimer > 0)
+    ctx.fillText(`ESCUDO ${ship.shieldTimer.toFixed(1)}s`, 14, 66);
 
 
 
