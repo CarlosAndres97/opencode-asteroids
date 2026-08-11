@@ -29,6 +29,32 @@ const dist  = (a, b)   => Math.hypot(a.x - b.x, a.y - b.y);
 const rand  = (min, max) => min + Math.random() * (max - min);
 const randInt = (min, max) => Math.floor(rand(min, max + 1));
 
+// ── Skins ────────────────────────────────────────────────────────────────────
+const SKINS = {
+  classic: { name: 'Clasica',      hull: '#fff', flame: 'rgba(255,130,0,0.85)', flameBoost: 'rgba(255,230,90,1)' },
+  cian:    { name: 'Cian',        hull: '#7df', flame: 'rgba(120,220,255,0.85)', flameBoost: 'rgba(180,240,255,1)' },
+  verde:   { name: 'Verde Lima',  hull: '#7f7', flame: 'rgba(120,255,120,0.85)', flameBoost: 'rgba(200,255,150,1)' },
+  magenta: { name: 'Magenta',     hull: '#f7d', flame: 'rgba(255,120,220,0.85)', flameBoost: 'rgba(255,200,240,1)' },
+  oro:     { name: 'Oro',        hull: '#fd4', flame: 'rgba(255,200,40,0.85)',   flameBoost: 'rgba(255,240,150,1)' },
+  roja:    { name: 'Roja',       hull: '#f55', flame: 'rgba(255,80,60,0.85)',    flameBoost: 'rgba(255,180,120,1)' },
+};
+const SKIN_ORDER = ['classic', 'cian', 'verde', 'magenta', 'oro', 'roja'];
+const SKIN_STORAGE_KEY = 'asteroids.skin';
+
+function loadSkin() {
+  try {
+    const saved = localStorage.getItem(SKIN_STORAGE_KEY);
+    if (saved && SKIN_ORDER.includes(saved)) return saved;
+  } catch (e) {}
+  return 'classic';
+}
+
+function saveSkin(key) {
+  try { localStorage.setItem(SKIN_STORAGE_KEY, key); } catch (e) {}
+}
+
+let currentSkin = loadSkin();
+
 // ── Bullet ────────────────────────────────────────────────────────────────────
 class Bullet {
   constructor(x, y, angle) {
@@ -266,10 +292,11 @@ class Ship {
     // Parpadeo durante invencibilidad de reaparición
     if (this.invincible > 0 && Math.floor(this.invincible * 8) % 2 === 0) return;
 
+    const skin = SKINS[currentSkin];
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = skin.hull;
     ctx.lineWidth   = 1.5;
     ctx.lineJoin    = 'round';
 
@@ -288,9 +315,7 @@ class Ship {
       ctx.moveTo(-8, -4);
       ctx.lineTo(-8 - rand(6, 14), 0);
       ctx.lineTo(-8,  4);
-      ctx.strokeStyle = this.boostTimer > 0
-        ? 'rgba(255, 230, 90, 1)'
-        : 'rgba(255, 130, 0, 0.85)';
+      ctx.strokeStyle = this.boostTimer > 0 ? skin.flameBoost : skin.flame;
       ctx.stroke();
     }
 
@@ -414,7 +439,21 @@ function killShip() {
 }
 
 // ── Update ────────────────────────────────────────────────────────────────────
+function cycleSkin(dir) {
+  const idx = SKIN_ORDER.indexOf(currentSkin);
+  let newIdx = idx + dir;
+  if (newIdx < 0) newIdx = SKIN_ORDER.length - 1;
+  if (newIdx >= SKIN_ORDER.length) newIdx = 0;
+  currentSkin = SKIN_ORDER[newIdx];
+}
+
 function update(dt) {
+  // Cambiar skin con Q (sin pausar)
+  if (pressed('KeyQ')) {
+    cycleSkin(1);
+    saveSkin(currentSkin);
+  }
+
   if (state === 'gameover') {
     if (pressed('Space')) initGame();
     particles.forEach(p => p.update(dt));
@@ -509,10 +548,11 @@ function update(dt) {
 
 // ── Draw ──────────────────────────────────────────────────────────────────────
 function drawLifeIcon(x, y) {
+  const skin = SKINS[currentSkin];
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(-Math.PI / 2);
-  ctx.strokeStyle = '#fff';
+  ctx.strokeStyle = skin.hull;
   ctx.lineWidth   = 1.2;
   ctx.lineJoin    = 'round';
   ctx.beginPath();
@@ -534,6 +574,8 @@ function drawHUD() {
   if (ship && ship.boostTimer > 0)
     ctx.fillText(`IMPULSO ${ship.boostTimer.toFixed(1)}s`, 14, 46);
 
+
+
   ctx.textAlign = 'center';
   ctx.fillText(`NIVEL ${level}`, W / 2, 26);
 
@@ -552,6 +594,8 @@ function drawOverlay(title, sub) {
   ctx.fillText(sub, W / 2, H / 2 + 22);
 }
 
+
+
 function draw() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, W, H);
@@ -565,8 +609,9 @@ function draw() {
 
   drawHUD();
 
-  if (state === 'gameover')
+  if (state === 'gameover') {
     drawOverlay('GAME OVER', `PUNTAJE: ${score}   —   ESPACIO PARA REINICIAR`);
+  }
 }
 
 // ── Loop principal ────────────────────────────────────────────────────────────
