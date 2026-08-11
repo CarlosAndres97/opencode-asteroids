@@ -45,7 +45,9 @@ Luego visita `http://localhost:3000`.
 - 3 vidas con invencibilidad temporal al reaparecer (parpadeo)
 - Asteroides se parten en fragmentos más pequeños al ser destruidos
 - Partículas de explosión al destruir asteroides
-- Power-up de velocidad (rayo): 12.5 % de probabilidad de drop al destruir un asteroide — al recogerlo, la nave obtiene 2× de velocidad durante 5 s
-- Power-up de escudo (aro): 12.5 % de probabilidad de drop al destruir un asteroide — al recogerlo, la nave queda protegida durante 8 s; cualquier asteroide o estrella fugaz que toque el escudo se destruye
+- Power-ups: al destruir un asteroide hay 50 % de probabilidad de que caiga uno (a partes iguales entre los tres)
+  - Velocidad (rayo): 2× de velocidad durante 5 s
+  - Escudo (aro): protege la nave durante 8 s; cualquier asteroide o estrella fugaz que toque el escudo se destruye
+  - Triple shot (tres puntos): cada disparo produce una ráfaga de 3 balas secuenciales durante 5 s
 - Estrella fugaz: un asteroide especial que cruza la pantalla a gran velocidad con una estela brillante. Desaparece después de 7 segundos si no la destruyes. Otorga 200 puntos.
 - Sistema de skins: personaliza el color de tu nave. Pulsa `Q` para cambiar de skin. Tu selección se guarda automáticamente.
