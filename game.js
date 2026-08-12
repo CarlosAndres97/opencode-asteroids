@@ -31,14 +31,15 @@ const randInt = (min, max) => Math.floor(rand(min, max + 1));
 
 // ── Skins ────────────────────────────────────────────────────────────────────
 const SKINS = {
-  classic: { name: 'Clasica',      hull: '#fff', flame: 'rgba(255,130,0,0.85)', flameBoost: 'rgba(255,230,90,1)' },
-  cian:    { name: 'Cian',        hull: '#7df', flame: 'rgba(120,220,255,0.85)', flameBoost: 'rgba(180,240,255,1)' },
-  verde:   { name: 'Verde Lima',  hull: '#7f7', flame: 'rgba(120,255,120,0.85)', flameBoost: 'rgba(200,255,150,1)' },
-  magenta: { name: 'Magenta',     hull: '#f7d', flame: 'rgba(255,120,220,0.85)', flameBoost: 'rgba(255,200,240,1)' },
-  oro:     { name: 'Oro',        hull: '#fd4', flame: 'rgba(255,200,40,0.85)',   flameBoost: 'rgba(255,240,150,1)' },
-  roja:    { name: 'Roja',       hull: '#f55', flame: 'rgba(255,80,60,0.85)',    flameBoost: 'rgba(255,180,120,1)' },
+  classic: { name: 'Clasica',     hull: '#fff', flame: 'rgba(255,130,0,0.85)',  flameBoost: 'rgba(255,230,90,1)',  scale: 1, pointMultiplier: 1 },
+  cian:    { name: 'Cian',        hull: '#7df', flame: 'rgba(120,220,255,0.85)', flameBoost: 'rgba(180,240,255,1)', scale: 1, pointMultiplier: 1 },
+  verde:   { name: 'Verde Lima',  hull: '#7f7', flame: 'rgba(120,255,120,0.85)', flameBoost: 'rgba(200,255,150,1)', scale: 1, pointMultiplier: 1 },
+  magenta: { name: 'Magenta',     hull: '#f7d', flame: 'rgba(255,120,220,0.85)', flameBoost: 'rgba(255,200,240,1)', scale: 1, pointMultiplier: 1 },
+  oro:     { name: 'Oro',         hull: '#fd4', flame: 'rgba(255,200,40,0.85)',  flameBoost: 'rgba(255,240,150,1)', scale: 1, pointMultiplier: 1 },
+  roja:    { name: 'Roja',        hull: '#f55', flame: 'rgba(255,80,60,0.85)',   flameBoost: 'rgba(255,180,120,1)', scale: 1, pointMultiplier: 1 },
+  morada:  { name: 'Morada',      hull: '#a4f', flame: 'rgba(180,120,255,0.85)', flameBoost: 'rgba(220,180,255,1)', scale: 2, pointMultiplier: 2 },
 };
-const SKIN_ORDER = ['classic', 'cian', 'verde', 'magenta', 'oro', 'roja'];
+const SKIN_ORDER = ['classic', 'cian', 'verde', 'magenta', 'oro', 'roja', 'morada'];
 const SKIN_STORAGE_KEY = 'asteroids.skin';
 
 function loadSkin() {
@@ -83,11 +84,7 @@ class Bullet {
   }
 }
 
-<<<<<<< HEAD
 // ── Power-up (velocidad, escudo, triple shot) ───────────────────────────────────
-=======
-// ── Power-up (impulso de velocidad y triple shot) ───────────────────────────────
->>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
 class PowerUp {
   constructor(x, y, kind = 'boost') {
     this.x  = x;
@@ -125,7 +122,6 @@ class PowerUp {
       ctx.lineTo( 1,  1);
       ctx.closePath();
       ctx.stroke();
-<<<<<<< HEAD
     } else if (this.kind === 'shield') {
       ctx.strokeStyle = '#7cf';
       ctx.beginPath();
@@ -137,8 +133,6 @@ class PowerUp {
       ctx.moveTo(0, -3);
       ctx.lineTo(0, 3);
       ctx.stroke();
-=======
->>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
     } else if (this.kind === 'triple') {
       ctx.fillStyle = '#f7a';
       ctx.beginPath();
@@ -272,11 +266,9 @@ class Ship {
     this.angle  = -Math.PI / 2;
     this.vx     = 0;
     this.vy     = 0;
-    this.radius = 12;
     this.thrusting      = false;
     this.invincible    = 3;
     this.shootCooldown = 0;
-<<<<<<< HEAD
     this.boostTimer      = 0;
     this.shieldTimer     = 0;
     this.tripleShotTimer = 0;
@@ -284,27 +276,18 @@ class Ship {
     this.burstTimer      = 0;
     this.burstAngle      = 0;
     this.dead            = false;
-=======
-    this.boostTimer     = 0;
-    this.tripleShotTimer = 0;
-    this.burstShots    = 0;
-    this.burstTimer    = 0;
-    this.burstAngle    = 0;
-    this.dead          = false;
->>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
   }
+
+  get scale()           { return SKINS[currentSkin].scale || 1; }
+  get radius()          { return 12 * this.scale; }
+  get pointMultiplier() { return SKINS[currentSkin].pointMultiplier || 1; }
 
   update(dt) {
     if (this.dead) return;
     if (this.invincible      > 0) this.invincible      -= dt;
-<<<<<<< HEAD
     if (this.shootCooldown   > 0) this.shootCooldown   -= dt;
     if (this.boostTimer      > 0) this.boostTimer      -= dt;
     if (this.shieldTimer     > 0) this.shieldTimer     -= dt;
-=======
-    if (this.shootCooldown  > 0) this.shootCooldown  -= dt;
-    if (this.boostTimer     > 0) this.boostTimer     -= dt;
->>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
     if (this.tripleShotTimer > 0) this.tripleShotTimer -= dt;
 
     const ROT   = 3.5;   // rad/s
@@ -342,7 +325,7 @@ class Ship {
   }
 
   _spawnBullet(angle) {
-    const NOSE = 21;
+    const NOSE = 21 * this.scale;
     const ox = this.x + Math.cos(angle) * NOSE;
     const oy = this.y + Math.sin(angle) * NOSE;
     return new Bullet(ox, oy, angle);
@@ -387,6 +370,7 @@ class Ship {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
+    ctx.scale(this.scale, this.scale);
     ctx.strokeStyle = skin.hull;
     ctx.lineWidth   = 1.5;
     ctx.lineJoin    = 'round';
@@ -588,16 +572,12 @@ function update(dt) {
       if (!a.dead && !b.dead && dist(b, a) < a.radius) {
         b.dead = true;
         a.dead = true;
-        score += POINTS[a.size];
+        score += POINTS[a.size] * ship.pointMultiplier;
         explode(a.x, a.y, a.size * 5);
         newAsteroids.push(...a.split());
         if (Math.random() < 0.5) {
-<<<<<<< HEAD
           const r = Math.random();
           const kind = r < 1/3 ? 'boost' : r < 2/3 ? 'shield' : 'triple';
-=======
-          const kind = Math.random() < 0.5 ? 'boost' : 'triple';
->>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
           powerups.push(new PowerUp(a.x, a.y, kind));
         }
       }
@@ -612,7 +592,7 @@ function update(dt) {
       if (!s.dead && !b.dead && dist(b, s) < s.radius) {
         b.dead = true;
         s.dead = true;
-        score += SHOOTING_STAR_POINTS;
+        score += SHOOTING_STAR_POINTS * ship.pointMultiplier;
         explode(s.x, s.y, 6);
         break;
       }
@@ -625,11 +605,6 @@ function update(dt) {
   for (const p of powerups) {
     if (dist(ship, p) < ship.radius + p.radius) {
       p.dead = true;
-<<<<<<< HEAD
-=======
-      if (p.kind === 'boost') ship.boostTimer = 5;
-      else ship.tripleShotTimer = 5;
->>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
       explode(p.x, p.y, 6);
       if (p.kind === 'shield') {
         ship.shieldTimer = 8;
@@ -659,7 +634,7 @@ function update(dt) {
     for (const a of asteroids) {
       if (!a.dead && dist(ship, a) < ship.radius + a.radius + 6) {
         a.dead = true;
-        score += POINTS[a.size];
+        score += POINTS[a.size] * ship.pointMultiplier;
         explode(a.x, a.y, a.size * 5);
         newAsteroids.push(...a.split());
       }
@@ -674,9 +649,11 @@ function update(dt) {
 // ── Draw ──────────────────────────────────────────────────────────────────────
 function drawLifeIcon(x, y) {
   const skin = SKINS[currentSkin];
+  const scale = skin.scale || 1;
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(-Math.PI / 2);
+  ctx.scale(scale, scale);
   ctx.strokeStyle = skin.hull;
   ctx.lineWidth   = 1.2;
   ctx.lineJoin    = 'round';
@@ -698,15 +675,10 @@ function drawHUD() {
   ctx.fillText(`SCORE  ${score}`, 14, 26);
   if (ship && ship.boostTimer > 0)
     ctx.fillText(`IMPULSO ${ship.boostTimer.toFixed(1)}s`, 14, 46);
-<<<<<<< HEAD
   if (ship && ship.shieldTimer > 0)
     ctx.fillText(`ESCUDO  ${ship.shieldTimer.toFixed(1)}s`, 14, 66);
   if (ship && ship.tripleShotTimer > 0)
     ctx.fillText(`TRIPLE  ${ship.tripleShotTimer.toFixed(1)}s`, 14, 86);
-=======
-  if (ship && ship.tripleShotTimer > 0)
-    ctx.fillText(`TRIPLE  ${ship.tripleShotTimer.toFixed(1)}s`, 14, 66);
->>>>>>> d113ccb (Add triple shot power-up with sequential burst firing)
 
   ctx.textAlign = 'center';
   ctx.fillText(`NIVEL ${level}`, W / 2, 26);
