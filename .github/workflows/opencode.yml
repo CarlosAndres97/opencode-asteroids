@@ -26,9 +26,9 @@ jobs:
           persist-credentials: false
 
       - name: Run opencode
-        uses: anomalyco/opencode/github@v1
+        uses: anomalyco/opencode/github@latest
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
         with:
-          model: minimax-coding-plan/MiniMax-M3
+          model: minimax/MiniMax-M2
           use_github_token: 'true'
