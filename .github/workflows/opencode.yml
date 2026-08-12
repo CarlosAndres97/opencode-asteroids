@@ -17,8 +17,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      pull-requests: write
-      issues: write
+      pull-requests: read
+      issues: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -30,5 +30,4 @@ jobs:
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
         with:
-          model: minimax/MiniMax-M2
-          use_github_token: 'true'
+          model: minimax-coding-plan/MiniMax-M2
